@@ -1,13 +1,11 @@
 import { Link, useLocation } from '@tanstack/react-router';
 import {
   Home,
-  Users,
   FileText,
   LogOut,
   Settings,
   ExternalLink,
-  Webhook,
-  RefreshCw,
+  BrainCircuit,
 } from 'lucide-react';
 import logotype from '@/logotype.svg';
 import { cn } from '@/lib/utils';
@@ -17,25 +15,15 @@ import { Button } from '@/components/ui/button';
 
 const menuItems = [
   {
-    title: 'Dashboard',
+    title: 'My Dashboard',
     url: ROUTES.dashboard,
     icon: Home,
   },
   {
-    title: 'Users',
-    url: ROUTES.users,
-    icon: Users,
-  },
-  {
-    title: 'Webhooks',
-    url: ROUTES.webhooks,
-    icon: Webhook,
-    badge: 'Beta',
-  },
-  {
-    title: 'Syncs',
-    url: ROUTES.syncs,
-    icon: RefreshCw,
+    title: 'AI Coach',
+    url: ROUTES.aiChat,
+    icon: BrainCircuit,
+    badge: 'New',
   },
   {
     title: 'Settings',

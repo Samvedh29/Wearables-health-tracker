@@ -10,7 +10,7 @@ Queue and retry policy are configured per-provider at the call site (send_task w
 from logging import getLogger
 from typing import Any
 
-from celery import Task, shared_task
+
 
 from app.database import SessionLocal
 from app.services.providers.factory import ProviderFactory
@@ -18,14 +18,9 @@ from app.utils.structured_logging import log_structured
 
 logger = getLogger(__name__)
 
+from celery import Task, shared_task
 
-@shared_task(
-    bind=True,
-    acks_late=True,
-    reject_on_worker_lost=True,
-    max_retries=3,
-    default_retry_delay=30,
-)
+@shared_task(bind=True, max_retries=3)
 def process_webhook_push(
     self: Task, provider_name: str, payload: dict[str, Any], request_trace_id: str
 ) -> dict[str, Any]:

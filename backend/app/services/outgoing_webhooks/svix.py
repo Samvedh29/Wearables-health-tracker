@@ -118,9 +118,15 @@ def register_event_types() -> None:
         try:
             _client.event_type.create(EventTypeIn(name=evt.value, description=description))
             logger.info("Registered event type: %s", evt.value)
+        except httpx.ConnectError:
+            logger.warning("Svix server unreachable — skipping event type registration")
+            break
         except Exception:
             try:
                 _client.event_type.update(evt.value, EventTypeUpdate(description=description))
+            except httpx.ConnectError:
+                logger.warning("Svix server unreachable — skipping event type registration")
+                break
             except Exception:
                 logger.exception("Failed to register/update event type %s", evt.value)
 

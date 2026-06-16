@@ -4,7 +4,7 @@ from enum import Enum
 from typing import Annotated, Any
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Path, Query, status
+from fastapi import APIRouter, HTTPException, Path, Query, status, BackgroundTasks
 
 from app.database import DbSession
 from app.integrations.celery.tasks import (
@@ -34,15 +34,20 @@ def _queue_pull_sync(
     end_date: str | None,
     *,
     is_historical: bool = False,
-) -> Any:
-    """Enqueue a pull-API sync task and return the Celery AsyncResult."""
-    return sync_vendor_data.delay(
-        user_id=str(user_id),
-        start_date=start_date,
-        end_date=end_date,
-        providers=[provider_value],
-        is_historical=is_historical,
-    )
+    background_tasks: BackgroundTasks = None,
+) -> str:
+    """Enqueue a pull-API sync task and return a dummy task id."""
+    task_id = "local-sync-task"
+    if background_tasks:
+        background_tasks.add_task(
+            sync_vendor_data,
+            str(user_id),
+            start_date,
+            end_date,
+            [provider_value],
+            is_historical,
+        )
+    return task_id
 
 
 class SyncDataType(str, Enum):
@@ -99,6 +104,7 @@ def sync_user_data(
             description="Run sync asynchronously via Celery (default: true). Set false for sync.",
         ),
     ] = True,
+    background_tasks: BackgroundTasks = None,
 ) -> dict[str, bool | dict | str]:
     """
     Synchronize data from fitness provider API for a specific user.
@@ -150,11 +156,11 @@ def sync_user_data(
         elif summary_start_time:
             start_date_iso = summary_start_time
 
-        task = _queue_pull_sync(user_id, provider.value, start_date_iso, summary_end_time)
+        task_id = _queue_pull_sync(user_id, provider.value, start_date_iso, summary_end_time, background_tasks=background_tasks)
         return {
             "success": True,
             "async": True,
-            "task_id": task.id,
+            "task_id": task_id,
             "message": f"Sync task queued for {provider.value}. Check task status for results.",
         }
 
@@ -312,7 +318,7 @@ def retry_garmin_backfill_type(
 
     # Reset the type status to pending and trigger backfill
     reset_garmin_type_status(str(user_id), type_name)
-    trigger_garmin_backfill_for_type.delay(str(user_id), type_name)
+    trigger_garmin_backfill_for_type(str(user_id), type_name)
 
     return {
         "success": True,

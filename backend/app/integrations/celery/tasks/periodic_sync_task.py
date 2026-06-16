@@ -1,6 +1,6 @@
 from logging import getLogger
 
-from celery import shared_task
+
 
 from app.database import SessionLocal
 from app.integrations.celery.tasks.sync_vendor_data_task import sync_vendor_data
@@ -11,7 +11,7 @@ from app.utils.structured_logging import log_structured
 logger = getLogger(__name__)
 
 
-@shared_task
+
 def sync_all_users(
     start_date: str | None = None,
     end_date: str | None = None,
@@ -42,6 +42,6 @@ def sync_all_users(
         )
 
         for active_user_id in active_user_ids:
-            sync_vendor_data.delay(user_id=str(active_user_id), start_date=start_date, end_date=end_date)
+            sync_vendor_data(user_id=str(active_user_id), start_date=start_date, end_date=end_date)
 
         return SyncAllUsersResult(users_for_sync=len(active_user_ids)).model_dump()

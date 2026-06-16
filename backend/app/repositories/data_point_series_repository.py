@@ -2,7 +2,6 @@ import contextlib
 from datetime import datetime, time, timedelta
 from uuid import UUID
 
-from psycopg.errors import UniqueViolation
 from sqlalchemy import Date, Interval, String, asc, case, cast, func, literal_column, text, tuple_
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import IntegrityError as SQLAIntegrityError
@@ -187,7 +186,8 @@ class DataPointSeriesRepository(
             db_session.refresh(creation)
             return creation
         except SQLAIntegrityError as e:
-            if isinstance(e.orig, UniqueViolation):
+            orig_err = str(e.orig).lower()
+            if "unique" in orig_err or "duplicate" in orig_err:
                 db_session.rollback()
 
                 # Query for existing record using the unique constraint fields

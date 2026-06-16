@@ -2,7 +2,7 @@ from typing import Any, Literal, cast
 from uuid import UUID
 
 from sqlalchemy import Table, update
-from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.dialects.sqlite import insert
 from sqlalchemy.exc import IntegrityError
 
 from app.database import DbSession

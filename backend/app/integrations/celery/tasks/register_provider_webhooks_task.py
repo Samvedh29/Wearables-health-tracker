@@ -7,7 +7,7 @@ Runs asynchronously so the settings API response is not blocked.
 import asyncio
 from logging import getLogger
 
-from celery import Task, shared_task
+from celery import Task
 
 from app.database import SessionLocal
 from app.repositories.provider_settings_repository import ProviderSettingsRepository
@@ -18,13 +18,10 @@ from app.utils.structured_logging import log_structured
 logger = getLogger(__name__)
 
 
-@shared_task(
-    bind=True,
-    acks_late=True,
-    reject_on_worker_lost=True,
-    max_retries=3,
-    default_retry_delay=60,
-)
+
+from celery import Task, shared_task
+
+@shared_task(bind=True, max_retries=3)
 def register_provider_webhooks(self: Task, provider: str, callback_url: str) -> dict:
     """Register webhook subscriptions for a provider via its registration API.
 

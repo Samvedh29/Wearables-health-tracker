@@ -53,7 +53,7 @@ def _dispatch(
     try:
         from app.integrations.celery.tasks.emit_webhook_event_task import emit_webhook_event
 
-        emit_webhook_event.delay(event_type, payload, channels=channels, idempotency_key=idempotency_key)
+        emit_webhook_event(event_type, payload, channels=channels, idempotency_key=idempotency_key)
     except Exception:
         logger.warning("Could not enqueue webhook event %s", event_type, exc_info=True)
 

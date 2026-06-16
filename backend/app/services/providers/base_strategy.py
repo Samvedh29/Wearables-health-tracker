@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Literal
 from uuid import UUID
 
-from celery import current_app as celery_app
+
 
 from app.models import EventRecord, User
 from app.repositories.event_record_repository import EventRecordRepository

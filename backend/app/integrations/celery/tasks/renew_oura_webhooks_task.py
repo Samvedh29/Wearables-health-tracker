@@ -7,7 +7,7 @@ all active subscriptions well before they expire.
 import asyncio
 from logging import getLogger
 
-from celery import Task, shared_task
+from celery import Task
 
 from app.services.providers.oura.webhook_service import oura_webhook_service
 from app.utils.structured_logging import log_structured
@@ -15,13 +15,10 @@ from app.utils.structured_logging import log_structured
 logger = getLogger(__name__)
 
 
-@shared_task(
-    bind=True,
-    acks_late=True,
-    reject_on_worker_lost=True,
-    max_retries=3,
-    default_retry_delay=3600,  # retry after 1 hour on failure
-)
+
+from celery import Task, shared_task
+
+@shared_task(bind=True, max_retries=3)
 def renew_oura_webhooks(self: Task) -> dict:
     """Renew all active Oura webhook subscriptions."""
     try:

@@ -42,7 +42,7 @@ class InvitationService:
     ) -> None:
         """Queue invitation email for async delivery with retry logic."""
         invite_url = self._get_invite_url(invitation.token)
-        send_invitation_email_task.delay(
+        send_invitation_email_task(
             invitation_id=str(invitation.id),
             to_email=invitation.email,
             invite_url=invite_url,

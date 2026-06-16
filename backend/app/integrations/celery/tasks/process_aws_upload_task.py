@@ -3,7 +3,7 @@ import tempfile
 from logging import getLogger
 from pathlib import Path
 
-from celery import shared_task
+
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
@@ -19,7 +19,7 @@ from app.utils.sentry_helpers import log_and_capture_error
 logger = getLogger(__name__)
 
 
-@shared_task
+
 def process_aws_upload(bucket_name: str, object_key: str, user_id: str) -> dict[str, str]:
     """
     Process XML file uploaded to S3 and import to Postgres database.

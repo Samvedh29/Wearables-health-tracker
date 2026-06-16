@@ -10,7 +10,7 @@ If both are NULL, the task is a no-op.
 
 from logging import getLogger
 
-from celery import shared_task
+
 
 from app.database import SessionLocal
 from app.services.archival_service import archival_service
@@ -18,14 +18,7 @@ from app.services.archival_service import archival_service
 logger = getLogger(__name__)
 
 
-@shared_task(
-    name="app.integrations.celery.tasks.archival_task.run_daily_archival",
-    soft_time_limit=300,  # 5 min soft limit — raises SoftTimeLimitExceeded
-    time_limit=360,  # 6 min hard limit — kills the worker
-    acks_late=True,  # Re-queue if worker dies mid-task
-    max_retries=3,
-    default_retry_delay=60,
-)
+
 def run_daily_archival() -> dict:
     """Execute the daily archival + retention job.
 

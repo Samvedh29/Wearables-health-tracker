@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 from logging import getLogger
 from typing import cast
 
-from celery import shared_task
+
 
 from app.config import settings
 from app.database import SessionLocal
@@ -18,7 +18,7 @@ from app.utils.sentry_helpers import log_and_capture_error
 logger = getLogger(__name__)
 
 
-@shared_task
+
 def finalize_stale_sleeps() -> None:
     now = datetime.now(timezone.utc)
     redis_client = get_redis_client()

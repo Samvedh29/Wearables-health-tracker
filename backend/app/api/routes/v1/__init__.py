@@ -31,6 +31,7 @@ from .user_invitation_code import router as user_invitation_code_router
 from .users import router as users_router
 from .vendor_workouts import router as vendor_workouts_router
 from .webhooks import router as providers_webhooks_router
+from .mcp import router as mcp_router
 
 v1_router = APIRouter()
 
@@ -64,6 +65,7 @@ v1_router.include_router(dashboard_router, prefix="/dashboard", tags=["Internal:
 v1_router.include_router(archival_router, tags=["Internal: Data Lifecycle"])
 v1_router.include_router(seed_data_router, tags=["Internal: Seed Data"])
 v1_router.include_router(priorities_router, tags=["Internal: Priorities"])
+v1_router.include_router(mcp_router, prefix="/mcp", tags=["Internal: MCP"])
 
 # --- System: provider webhooks ---
 v1_router.include_router(oura_webhooks_router, prefix="/oura/webhooks", tags=["System: Oura Webhooks"])

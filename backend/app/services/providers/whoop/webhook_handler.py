@@ -32,7 +32,7 @@ import time
 from typing import Any
 from uuid import UUID, uuid4
 
-from celery import current_app as celery_app
+
 from fastapi import HTTPException, Request
 from pydantic import ValidationError
 

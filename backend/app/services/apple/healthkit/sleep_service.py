@@ -319,7 +319,7 @@ def handle_sleep_data(
 
     # Dispatch the stale-sleep task so sessions that have gone quiet (including
     # other users' sessions) are finalised promptly without waiting for the next beat.
-    finalize_stale_sleeps.delay()
+    finalize_stale_sleeps()
 
 
 def _calculate_final_metrics(stages: list[SleepStateStage]) -> tuple[dict, list[SleepStage]]:

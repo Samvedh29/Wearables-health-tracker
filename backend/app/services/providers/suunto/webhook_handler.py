@@ -19,7 +19,7 @@ import logging
 from typing import Any
 from uuid import uuid4
 
-from celery import current_app as celery_app
+
 from fastapi import HTTPException, Request
 
 from app.config import settings

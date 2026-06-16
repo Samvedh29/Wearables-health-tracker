@@ -58,5 +58,5 @@ def update_archival_settings(
 def trigger_archival(
     _developer: DeveloperDep,
 ) -> dict[str, str]:
-    result = run_daily_archival.delay()
+    result = run_daily_archival()
     return {"task_id": result.id, "status": "dispatched"}

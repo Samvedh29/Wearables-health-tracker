@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any
 from uuid import UUID
 
-from celery import shared_task
+
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
@@ -22,7 +22,7 @@ from app.utils.structured_logging import log_structured
 log = getLogger(__name__)
 
 
-@shared_task
+
 def process_xml_upload(file_contents: bytes, filename: str, user_id: str) -> dict[str, Any]:
     """
     Process XML file and import to Postgres database.

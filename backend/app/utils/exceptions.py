@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, overload
 from uuid import UUID
 
 from fastapi.exceptions import HTTPException, RequestValidationError
-from psycopg.errors import IntegrityError as PsycopgIntegrityError
 from sqlalchemy.exc import IntegrityError as SQLAIntegrityError
 
 if TYPE_CHECKING:
@@ -44,7 +43,7 @@ def handle_exception(exc: Exception, _: str) -> HTTPException:
 
 
 @handle_exception.register
-def _(exc: SQLAIntegrityError | PsycopgIntegrityError, entity: str) -> HTTPException:
+def _(exc: SQLAIntegrityError, entity: str) -> HTTPException:
     return HTTPException(
         status_code=400,
         detail=f"{entity.capitalize()} entity already exists. Details: {exc.args[0]}",

@@ -170,7 +170,7 @@ class SNSService:
                 )
                 continue
 
-            process_aws_upload.delay(
+            process_aws_upload(
                 bucket_name=bucket_name,
                 object_key=object_key,
                 user_id=user_id,

@@ -2,8 +2,7 @@ from decimal import Decimal
 from typing import Annotated, Any, TypeVar
 from uuid import UUID
 
-from sqlalchemy import ForeignKey, Numeric, String
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import ForeignKey, Numeric, String, JSON
 from sqlalchemy.orm import mapped_column
 
 T = TypeVar("T")
@@ -23,7 +22,7 @@ type ManyToOne[T] = T
 type OneToOne[T] = T
 
 # Custom types
-json_binary = Annotated[list[dict[str, Any]], mapped_column(JSONB)]
+json_binary = Annotated[list[dict[str, Any]], mapped_column(JSON)]
 email = Annotated[str, mapped_column(String)]
 str_10 = Annotated[str, mapped_column(String(10))]
 str_32 = Annotated[str, mapped_column(String(32))]

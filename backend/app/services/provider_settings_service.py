@@ -1,4 +1,4 @@
-from celery import current_app as celery_app
+
 
 from app.config import settings
 from app.database import DbSession
@@ -36,6 +36,8 @@ class ProviderSettingsService:
                 else strategy.default_live_sync_mode
             ),
             live_sync_configurable=strategy.live_sync_configurable,
+            client_id=setting.client_id if setting else None,
+            client_secret=setting.client_secret if setting else None,
         )
 
     def get_all_providers(self, db: DbSession) -> list[ProviderSettingRead]:
@@ -68,7 +70,21 @@ class ProviderSettingsService:
         if effective_live_sync_mode is None and (current is None or current.live_sync_mode is None):
             effective_live_sync_mode = strategy.default_live_sync_mode
 
-        setting = self.repo.upsert(db, provider, new_is_enabled, effective_live_sync_mode)
+        setting = self.repo.upsert(
+            db, 
+            provider, 
+            new_is_enabled, 
+            effective_live_sync_mode,
+            update.client_id,
+            update.client_secret
+        )
+
+        if provider == "strava":
+            if update.client_id:
+                settings.strava_client_id = update.client_id
+            if update.client_secret:
+                from pydantic import SecretStr
+                settings.strava_client_secret = SecretStr(update.client_secret)
 
         if update.live_sync_mode == LiveSyncMode.WEBHOOK and strategy.capabilities.webhook_registration_api:
             callback_url = f"{settings.api_base_url}{settings.api_v1}/providers/{provider}/webhooks"
@@ -84,6 +100,8 @@ class ProviderSettingsService:
                 setting.live_sync_mode if setting.live_sync_mode is not None else strategy.default_live_sync_mode
             ),
             live_sync_configurable=strategy.live_sync_configurable,
+            client_id=setting.client_id,
+            client_secret=setting.client_secret,
         )
 
     def bulk_update_providers(self, db: DbSession, updates: dict[str, bool]) -> list[ProviderSettingRead]:

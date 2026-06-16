@@ -7,12 +7,11 @@ from pathlib import Path
 
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.api import head_router
 from app.config import settings
-from app.integrations.celery import create_celery
 from app.integrations.sentry import init_sentry
 from app.middlewares import add_cors_middleware
 from app.services import raw_payload_storage
@@ -39,11 +38,28 @@ for _name in ("uvicorn", "uvicorn.error", "uvicorn.access"):
 @asynccontextmanager
 async def _lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
     svix_service.register_event_types()
+    # Create SQLite database tables if they don't exist
+    from app.database import BaseDbModel, engine as db_engine, _get_db_dependency
+    import app.models  # Ensure all models are loaded
+    BaseDbModel.metadata.create_all(bind=db_engine)
+
+    # Load provider credentials into memory
+    db = next(_get_db_dependency())
+    from app.models.provider_setting import ProviderSetting
+    from sqlalchemy import select
+    from app.config import settings
+    from pydantic import SecretStr
+
+    strava_setting = db.execute(select(ProviderSetting).where(ProviderSetting.provider == "strava")).scalar_one_or_none()
+    if strava_setting:
+        if strava_setting.client_id:
+            settings.strava_client_id = strava_setting.client_id
+        if strava_setting.client_secret:
+            settings.strava_client_secret = SecretStr(strava_setting.client_secret)
     yield
 
 
 api = FastAPI(title=settings.api_name, lifespan=_lifespan)
-celery_app = create_celery()
 init_sentry()
 raw_payload_storage.configure(
     settings.raw_payload_storage,
@@ -61,10 +77,30 @@ static_dir = Path(__file__).parent / "static"
 if static_dir.exists():
     api.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
-
-@api.get("/")
-async def root() -> dict[str, str]:
-    return {"message": "Server is running!"}
+# Mount React Frontend if it exists
+frontend_dir = static_dir / "frontend"
+if frontend_dir.exists() and frontend_dir.is_dir():
+    # Mount everything inside frontend/dist to /assets, etc.
+    api.mount("/assets", StaticFiles(directory=str(frontend_dir / "assets")), name="frontend-assets")
+    
+    # Catch-all route to serve index.html for TanStack Router
+    @api.get("/{full_path:path}")
+    async def serve_frontend(full_path: str):
+        # Allow API routes to pass through (this catch-all is at the bottom, but just in case)
+        if full_path.startswith("api/"):
+            return JSONResponse(status_code=404, content={"detail": "Not Found"})
+            
+        # Check if the file actually exists (e.g. manifest.json, vite.svg)
+        file_path = frontend_dir / full_path
+        if file_path.exists() and file_path.is_file():
+            return FileResponse(file_path)
+            
+        # Fallback to index.html
+        return FileResponse(frontend_dir / "index.html")
+else:
+    @api.get("/")
+    async def root() -> dict[str, str]:
+        return {"message": "Server is running! (Frontend not built)"}
 
 
 @api.exception_handler(RequestValidationError)

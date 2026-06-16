@@ -2,13 +2,8 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { PageHeader } from '@/components/ui/page-header';
-import { CredentialsTab } from './settings/-credentials-tab';
 import { ProvidersTab } from './settings/-providers-tab';
 import { PrioritiesTab } from './settings/-priorities-tab';
-import { TeamTab } from './settings/-team-tab';
-import { DataLifecycleTab } from './settings/-data-lifecycle-tab';
-import { SecurityTab } from './settings/-security-tab';
-import { SeedDataTab } from './settings/-seed-data-tab';
 
 export const Route = createFileRoute('/_authenticated/settings')({
   component: SettingsPage,
@@ -22,39 +17,14 @@ interface TabConfig {
 
 const tabs: TabConfig[] = [
   {
-    id: 'credentials',
-    label: 'Credentials',
-    component: CredentialsTab,
-  },
-  {
     id: 'providers',
-    label: 'Providers',
+    label: 'Providers & Strava Connect',
     component: ProvidersTab,
   },
   {
     id: 'priorities',
     label: 'Priorities',
     component: PrioritiesTab,
-  },
-  {
-    id: 'data-lifecycle',
-    label: 'Data Lifecycle',
-    component: DataLifecycleTab,
-  },
-  {
-    id: 'team',
-    label: 'Team',
-    component: TeamTab,
-  },
-  {
-    id: 'security',
-    label: 'Security',
-    component: SecurityTab,
-  },
-  {
-    id: 'seed-data',
-    label: 'Seed Data',
-    component: SeedDataTab,
   },
 ];
 

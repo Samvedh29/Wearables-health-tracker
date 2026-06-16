@@ -3,7 +3,7 @@ from typing import Any
 from uuid import UUID
 
 from billiard.einfo import ExceptionInfo
-from celery import Task, shared_task
+
 
 from app.config import settings
 from app.database import SessionLocal
@@ -21,6 +21,8 @@ class EmailSendError(Exception):
 
     pass
 
+
+from celery import Task, shared_task
 
 class EmailTaskBase(Task):
     """Base task class that handles failure by updating invitation status to FAILED."""
@@ -70,7 +72,7 @@ class EmailTaskBase(Task):
 @shared_task(
     bind=True,
     base=EmailTaskBase,
-    autoretry_for=(ConnectionError, TimeoutError, EmailSendError),
+    autoretry_for=(EmailSendError,),
     retry_backoff=True,
     retry_backoff_max=600,
     retry_kwargs={"max_retries": settings.email_max_retries},

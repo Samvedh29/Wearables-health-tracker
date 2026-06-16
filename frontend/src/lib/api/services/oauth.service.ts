@@ -57,7 +57,7 @@ export const oauthService = {
    */
   async updateProviderSetting(
     provider: string,
-    update: { is_enabled?: boolean; live_sync_mode?: 'pull' | 'webhook' }
+    update: { is_enabled?: boolean; live_sync_mode?: 'pull' | 'webhook', client_id?: string, client_secret?: string }
   ): Promise<Provider> {
     return apiClient.put<Provider>(
       API_ENDPOINTS.providerSetting(provider),

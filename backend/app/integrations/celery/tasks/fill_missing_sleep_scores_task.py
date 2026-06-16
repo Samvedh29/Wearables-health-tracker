@@ -3,7 +3,7 @@ from datetime import date, datetime, timedelta, timezone
 from logging import getLogger
 from uuid import UUID, uuid4
 
-from celery import shared_task
+
 from sqlalchemy import text
 
 from app.config import settings
@@ -49,7 +49,7 @@ _MISSING_SCORES_QUERY = text("""
 """)
 
 
-@shared_task
+
 def fill_missing_sleep_scores() -> dict:
     """Find sleep sessions without an OW sleep score and calculate them.
 

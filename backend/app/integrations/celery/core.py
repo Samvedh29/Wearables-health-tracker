@@ -4,8 +4,7 @@ import sys
 from logging import Formatter, LogRecord, StreamHandler, getLogger
 from typing import cast
 
-from celery import Celery, signals
-from celery import current_app as current_celery_app
+from celery import Celery, current_app as current_celery_app, signals
 from celery.schedules import crontab
 
 from app.config import settings

@@ -25,6 +25,8 @@ class ProviderSettingRead(BaseModel):
         False,
         description="Whether the admin can switch live_sync_mode for this provider.",
     )
+    client_id: str | None = None
+    client_secret: str | None = None
 
 
 class ProviderSettingUpdate(BaseModel):
@@ -32,6 +34,8 @@ class ProviderSettingUpdate(BaseModel):
 
     is_enabled: bool | None = None
     live_sync_mode: LiveSyncMode | None = None
+    client_id: str | None = None
+    client_secret: str | None = None
 
     @field_validator("live_sync_mode", mode="before")
     @classmethod

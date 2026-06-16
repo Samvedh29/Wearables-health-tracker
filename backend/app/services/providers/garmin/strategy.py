@@ -65,7 +65,7 @@ class GarminStrategy(BaseProviderStrategy):
         The ``days`` parameter is ignored - Garmin limits historical access
         to 30 days before the user's consent date.
         """
-        task = start_garmin_full_backfill.delay(str(user_id))
+        task = start_garmin_full_backfill(str(user_id))
         return HistoricalSyncResult(
             task_id=task.id,
             method="webhook_backfill",

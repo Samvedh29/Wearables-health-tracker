@@ -4,7 +4,7 @@ from uuid import UUID
 
 from sqlalchemy import UUID as SQL_UUID
 from sqlalchemy import Date, Integer, Interval, String, and_, asc, case, cast, desc, func, text, tuple_
-from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.dialects.sqlite import insert
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Query, selectinload
 
@@ -395,59 +395,64 @@ class EventRecordRepository(
 
     def get_sleep_stage_stats_via_json(self, db_session: DbSession, record_id: UUID) -> list[dict]:
         """
-        Calculates sleep stage statistics directly from the JSONB column using SQL/JSON standard.
-        Demonstrates the power of PostgreSQL 17+ JSON_TABLE for analytic queries without application-side processing.
+        Calculates sleep stage statistics. For local sqlite database, we compute this in python.
         """
-        # Using JSON_TABLE to expand the array and aggregate in SQL
-        # This requires PostgreSQL 17+ (or 16 with extensions, but we target 18 per instructions)
-        stmt = text("""
-            SELECT
-                jt.stage,
-                count(*) as segment_count,
-                sum(extract(epoch from (jt.end_time - jt.start_time))) as total_seconds
-            FROM sleep_details sd,
-            JSON_TABLE(
-                sd.sleep_stages, '$[*]'
-                COLUMNS (
-                    stage text PATH '$.stage',
-                    start_time timestamp PATH '$.start_time',
-                    end_time timestamp PATH '$.end_time'
-                )
-            ) jt
-            WHERE sd.record_id = :record_id
-            GROUP BY jt.stage
-        """)
-
-        try:
-            result = db_session.execute(stmt, {"record_id": record_id}).fetchall()
-            return [
-                {"stage": row.stage, "segment_count": row.segment_count, "total_seconds": row.total_seconds}
-                for row in result
-            ]
-        except Exception:
-            # Fallback for older PG versions or tests running on sqlite/older docker images
+        record = db_session.query(SleepDetails).filter(SleepDetails.record_id == record_id).first()
+        if not record or not record.sleep_stages:
             return []
+            
+        stages: dict[str, dict[str, int | float]] = {}
+        for stage in record.sleep_stages:
+            name = stage.get("stage", "unknown")
+            start_str = stage.get("start_time")
+            end_str = stage.get("end_time")
+            if not start_str or not end_str:
+                continue
+            try:
+                start = datetime.fromisoformat(start_str.replace("Z", "+00:00"))
+                end = datetime.fromisoformat(end_str.replace("Z", "+00:00"))
+                duration = (end - start).total_seconds()
+            except ValueError:
+                continue
+                
+            if name not in stages:
+                stages[name] = {"segment_count": 0, "total_seconds": 0}
+            stages[name]["segment_count"] += 1
+            stages[name]["total_seconds"] += duration
+            
+        return [
+            {"stage": k, "segment_count": int(v["segment_count"]), "total_seconds": v["total_seconds"]}
+            for k, v in stages.items()
+        ]
 
     def get_records_containing_stage(self, db_session: DbSession, user_id: UUID, stage_name: str) -> list[EventRecord]:
         """
         Finds all sleep records that contain at least one occurrence of the specified stage.
-        Uses the highly efficient JSONB containment operator (@>).
+        Filters locally instead of using postgres JSONB containment.
         """
-        # Efficient checking: SleepDetails.sleep_stages @> '[{"stage": "deep"}]'
-        # SQLAlchemy expr: SleepDetails.sleep_stages.contains([{'stage': stage_name}])
-        return (
+        records = (
             db_session.query(EventRecord)
             .join(EventRecord.detail.of_type(SleepDetails))
             .join(DataSource, EventRecord.data_source_id == DataSource.id)
             .filter(
                 DataSource.user_id == user_id,
                 EventRecord.category == "sleep",
-                SleepDetails.sleep_stages.contains([{"stage": stage_name}]),
             )
             .order_by(desc(EventRecord.start_datetime))
-            .limit(10)
             .all()
         )
+        
+        results = []
+        for r in records:
+            if not r.detail or not hasattr(r.detail, "sleep_stages") or not r.detail.sleep_stages:
+                continue
+            for stage in r.detail.sleep_stages:
+                if stage.get("stage") == stage_name:
+                    results.append(r)
+                    if len(results) >= 10:
+                        return results
+                    break
+        return results
 
     def get_sleep_summaries(
         self,

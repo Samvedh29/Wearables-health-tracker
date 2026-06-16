@@ -38,7 +38,7 @@ def import_xml_file(
     file_contents = file.file.read()
     filename = file.filename or "upload.xml"
 
-    task = process_xml_upload.delay(file_contents=file_contents, filename=filename, user_id=user_id)
+    task = process_xml_upload(file_contents=file_contents, filename=filename, user_id=user_id)
 
     return {
         "status": "processing",

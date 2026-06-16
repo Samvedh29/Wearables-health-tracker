@@ -1,5 +1,5 @@
 from sqlalchemy import select
-from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.dialects.sqlite import insert
 
 from app.database import DbSession
 from app.models import ProviderSetting
@@ -21,16 +21,28 @@ class ProviderSettingsRepository:
         provider: str,
         is_enabled: bool,
         live_sync_mode: LiveSyncMode | None = None,
+        client_id: str | None = None,
+        client_secret: str | None = None,
     ) -> ProviderSetting:
         """Insert or update a provider setting."""
 
         update_fields: dict = {"is_enabled": is_enabled}
         if live_sync_mode is not None:
             update_fields["live_sync_mode"] = live_sync_mode
+        if client_id is not None:
+            update_fields["client_id"] = client_id
+        if client_secret is not None:
+            update_fields["client_secret"] = client_secret
 
         stmt = (
             insert(ProviderSetting)
-            .values(provider=provider, is_enabled=is_enabled, live_sync_mode=live_sync_mode)
+            .values(
+                provider=provider, 
+                is_enabled=is_enabled, 
+                live_sync_mode=live_sync_mode,
+                client_id=client_id,
+                client_secret=client_secret
+            )
             .on_conflict_do_update(index_elements=["provider"], set_=update_fields)
             .returning(ProviderSetting)
         )

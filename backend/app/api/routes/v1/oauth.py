@@ -104,13 +104,13 @@ def oauth_callback(
             # this code is going to be removed later, so leave inner imports heres
             from app.integrations.celery.tasks import start_garmin_full_backfill
 
-            start_garmin_full_backfill.delay(str(oauth_state.user_id))
+            start_garmin_full_backfill(str(oauth_state.user_id))
         elif caps.rest_pull:
             from app.integrations.celery.tasks import sync_vendor_data
 
             now = datetime.now(timezone.utc)
             start_date = (now - timedelta(days=90)).isoformat()
-            sync_vendor_data.delay(
+            sync_vendor_data(
                 user_id=str(oauth_state.user_id),
                 start_date=start_date,
                 end_date=now.isoformat(),

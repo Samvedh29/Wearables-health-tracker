@@ -4,7 +4,7 @@ from logging import getLogger
 from typing import Any, cast
 from uuid import UUID, uuid4
 
-from celery import shared_task
+import threading
 
 from app.database import SessionLocal
 from app.repositories.provider_settings_repository import ProviderSettingsRepository
@@ -48,7 +48,6 @@ def _include_in_periodic_pull(caps: Any, live_sync_mode: LiveSyncMode | None, is
     return live_sync_mode == LiveSyncMode.PULL
 
 
-@shared_task
 def sync_vendor_data(
     user_id: str,
     start_date: str | None = None,
@@ -398,7 +397,8 @@ def sync_vendor_data(
                                 user_id=user_id,
                                 linked_user_id=str(linked_conn.user_id),
                             )
-                            sync_vendor_data.apply_async(
+                            threading.Thread(
+                                target=sync_vendor_data,
                                 kwargs={
                                     "user_id": str(linked_conn.user_id),
                                     "start_date": start_date,
@@ -408,7 +408,7 @@ def sync_vendor_data(
                                     "_skip_linked_fan_out": True,
                                     "_linked_primary_user_id": user_id,
                                 }
-                            )
+                            ).start()
 
                     result.providers_synced[provider_name] = provider_result
                     log_structured(

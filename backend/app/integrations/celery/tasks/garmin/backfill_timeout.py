@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from logging import getLogger
 from typing import Any
 
-from celery import shared_task
+
 
 from app.integrations.celery.tasks.garmin.backfill_task import trigger_next_pending_type
 from app.integrations.redis_client import get_redis_client
@@ -79,7 +79,7 @@ def _finalize_chain_stop(user_id: str, current_window: int, error_msg: str) -> N
     complete_backfill(user_id)
 
 
-@shared_task
+
 def check_triggered_timeout(user_id: str, data_type: str) -> dict[str, Any]:
     """Check if a triggered type has timed out and mark it as timed_out.
 

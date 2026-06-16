@@ -36,7 +36,7 @@ from typing import TYPE_CHECKING, Any
 from urllib.parse import urlparse
 from uuid import uuid4
 
-from celery import current_app as celery_app
+
 from fastapi import HTTPException, Request, status
 from pydantic import ValidationError
 

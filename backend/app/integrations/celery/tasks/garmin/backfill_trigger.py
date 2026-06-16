@@ -9,7 +9,7 @@ from logging import getLogger
 from typing import Any
 from uuid import UUID
 
-from celery import shared_task
+
 from fastapi import HTTPException
 
 from app.database import SessionLocal
@@ -44,7 +44,7 @@ from app.utils.structured_logging import log_structured
 logger = getLogger(__name__)
 
 
-@shared_task
+
 def trigger_backfill_for_type(user_id: str, data_type: str) -> dict[str, Any]:
     """Trigger backfill for a specific data type."""
     from app.integrations.celery.tasks.garmin.backfill_task import trigger_next_pending_type

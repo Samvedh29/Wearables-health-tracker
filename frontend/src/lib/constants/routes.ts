@@ -13,6 +13,7 @@ export const ROUTES = {
   webhooks: '/webhooks',
   syncs: '/syncs',
   settings: '/settings',
+  aiChat: '/ai-chat',
 
   // Widget routes
   widgetConnect: '/widget/connect',

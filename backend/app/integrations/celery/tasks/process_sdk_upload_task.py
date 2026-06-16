@@ -2,7 +2,7 @@ import uuid
 from logging import getLogger
 from uuid import UUID
 
-from celery import shared_task
+
 
 from app.database import SessionLocal
 from app.models import User
@@ -27,7 +27,7 @@ def _get_import_service(provider: str) -> SDKImportService:
     raise ValueError(f"Unsupported provider: {provider}")
 
 
-@shared_task(queue="sdk_sync")
+
 def process_sdk_upload(
     content: str,
     content_type: str,

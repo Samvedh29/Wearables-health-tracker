@@ -256,6 +256,8 @@ export interface Provider {
   icon_url: string;
   live_sync_mode: 'pull' | 'webhook' | null;
   live_sync_configurable: boolean;
+  client_id?: string | null;
+  client_secret?: string | null;
 }
 
 export type WearableProvider =

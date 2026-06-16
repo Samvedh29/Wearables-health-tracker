@@ -76,3 +76,20 @@ export function useUpdateProviderLiveSyncMode(provider: string) {
     },
   });
 }
+
+// Update a single provider generic setting (like client_id, client_secret)
+export function useUpdateProviderSetting(provider: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (update: { client_id?: string; client_secret?: string }) =>
+      oauthService.updateProviderSetting(provider, update),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.oauthProviders.all });
+      toast.success('Provider settings updated successfully');
+    },
+    onError: (error) => {
+      toast.error(`Failed to update provider settings: ${getErrorMessage(error)}`);
+    },
+  });
+}

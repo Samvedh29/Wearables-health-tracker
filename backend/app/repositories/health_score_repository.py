@@ -2,8 +2,8 @@ from datetime import date, datetime, timezone
 from typing import Any, cast
 from uuid import UUID
 
-from sqlalchemy import and_, asc, desc, tuple_
-from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy import and_, or_, asc, desc, tuple_, func
+from sqlalchemy.dialects.sqlite import insert
 
 from app.database import DbSession
 from app.models import HealthScore
@@ -15,12 +15,12 @@ from app.utils.pagination import decode_cursor
 
 class HealthScoreRepository(CrudRepository[HealthScore, HealthScoreCreate, HealthScoreUpdate]):
     def get_by_all_components(self, db_session: DbSession, components: list[str]) -> list[HealthScore]:
-        """Return health scores whose components JSONB contains all specified keys (?& operator)."""
-        return db_session.query(HealthScore).filter(HealthScore.components.has_all(components)).all()
+        filters = [func.json_extract(HealthScore.components, f"$.{c}") != None for c in components]
+        return db_session.query(HealthScore).filter(and_(*filters)).all()
 
     def get_by_any_component(self, db_session: DbSession, components: list[str]) -> list[HealthScore]:
-        """Return health scores whose components JSONB contains any of the specified keys (?| operator)."""
-        return db_session.query(HealthScore).filter(HealthScore.components.has_any(components)).all()
+        filters = [func.json_extract(HealthScore.components, f"$.{c}") != None for c in components]
+        return db_session.query(HealthScore).filter(or_(*filters)).all()
 
     def get_with_filters(
         self,
@@ -156,13 +156,17 @@ class HealthScoreRepository(CrudRepository[HealthScore, HealthScoreCreate, Healt
         user_id: UUID,
     ) -> list[HealthScore]:
         """Return the most recent score for each category for a given user.
-
-        Uses PostgreSQL DISTINCT ON (category) for efficiency.
         """
-        return (
+        scores = (
             db_session.query(HealthScore)
             .filter(HealthScore.user_id == user_id)
-            .distinct(HealthScore.category)
-            .order_by(HealthScore.category, desc(HealthScore.recorded_at))
+            .order_by(desc(HealthScore.recorded_at))
             .all()
         )
+        seen = set()
+        results = []
+        for s in scores:
+            if s.category not in seen:
+                results.append(s)
+                seen.add(s.category)
+        return results

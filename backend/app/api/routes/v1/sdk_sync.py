@@ -97,7 +97,7 @@ def sync_sdk_data(
         trace_id=batch_id,
     )
 
-    process_sdk_upload.delay(
+    process_sdk_upload(
         content=content_str,
         content_type="application/json",
         user_id=user_id,

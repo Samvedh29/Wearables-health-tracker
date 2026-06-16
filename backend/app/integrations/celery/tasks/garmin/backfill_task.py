@@ -12,7 +12,7 @@ from logging import getLogger
 from typing import Any
 from uuid import UUID
 
-from celery import shared_task
+
 
 from app.database import SessionLocal
 from app.integrations.celery.tasks.garmin.backfill_trigger import trigger_backfill_for_type
@@ -106,7 +106,7 @@ def _release_shared_backfill_primary(user_id: str, *, overall_status: SyncStatus
     get_redis_client().delete(_get_key(user_id, "shared_provider_user_id"))
 
 
-@shared_task
+
 def start_full_backfill(user_id: str) -> dict[str, Any]:
     """Initialize and start full 30-day backfill for all backfill data types.
 
@@ -358,7 +358,7 @@ def start_full_backfill(user_id: str) -> dict[str, Any]:
     }
 
 
-@shared_task
+
 def trigger_next_pending_type(user_id: str) -> dict[str, Any]:
     """Trigger the next pending data type in the backfill sequence.
 

@@ -52,6 +52,11 @@ function LoginPage() {
               <p className="text-sm text-zinc-500">
                 Sign in to access dashboard, users, and settings.
               </p>
+              <div className="mt-4 p-3 bg-indigo-950/30 border border-indigo-900/50 rounded-lg text-xs text-indigo-200">
+                <p className="font-medium mb-1">Default Local Credentials:</p>
+                <p>Email: <span className="text-white font-mono">admin@admin.com</span></p>
+                <p>Password: <span className="text-white font-mono">your-secure-password</span></p>
+              </div>
             </div>
 
             <form className="space-y-4" onSubmit={handleLogin}>

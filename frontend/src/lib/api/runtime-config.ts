@@ -1,4 +1,4 @@
-const FALLBACK_API_URL = 'http://localhost:8000';
+const FALLBACK_API_URL = '';
 
 declare global {
   interface Window {

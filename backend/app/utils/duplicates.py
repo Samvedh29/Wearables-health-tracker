@@ -1,7 +1,6 @@
 from functools import wraps
 from typing import Callable, TypeVar
 
-from psycopg.errors import UniqueViolation
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.exc import IntegrityError as SQLAIntegrityError
 from sqlalchemy.inspection import inspect
@@ -23,7 +22,9 @@ def handle_duplicates(func: Callable[..., T]) -> Callable[..., T | None]:
         try:
             return func(*args, **kwargs)
         except SQLAIntegrityError as e:
-            if isinstance(e.orig, UniqueViolation):
+            # Check for PostgreSQL or SQLite unique violation
+            orig_err = str(e.orig).lower()
+            if "unique" in orig_err or "duplicate" in orig_err:
                 model = args[0].model
                 db_session = args[1]
                 creator = args[2]

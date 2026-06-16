@@ -286,13 +286,15 @@ class Settings(BaseSettings):
             return v.get_decrypted_value(validation_info.data["fernet_decryptor"])
         return v
 
+    sqlite_db_path: str = "./open-wearables.db"
+
     @property
     def db_uri(self) -> str:
-        return (
-            f"postgresql+psycopg://"
-            f"{self.db_user}:{self.db_password.get_secret_value()}"
-            f"@{self.db_host}:{self.db_port}/{self.db_name}"
-        )
+        return f"sqlite:///{self.sqlite_db_path}"
+
+    @property
+    def async_db_uri(self) -> str:
+        return f"sqlite+aiosqlite:///{self.sqlite_db_path}"
 
     # 0. pytest ini_options
     # 1. environment variables

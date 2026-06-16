@@ -16,7 +16,7 @@ from datetime import datetime, timezone
 from logging import getLogger
 from typing import Any, cast
 
-from celery import shared_task
+
 
 from app.integrations.redis_client import get_redis_client
 from app.services.providers.garmin.backfill_config import (
@@ -146,7 +146,7 @@ def clear_stuck_backfill(user_id: str) -> dict[str, Any]:
     }
 
 
-@shared_task
+
 def gc_stuck_backfills() -> dict[str, Any]:
     """Periodic task: scan for stuck Garmin backfills and clear them.
 

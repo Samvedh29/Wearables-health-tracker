@@ -30,7 +30,7 @@ def dispatch_seed_generation(
     # Resolve seed before dispatching so we can return it immediately
     seed = request.random_seed if request.random_seed is not None else random.randint(0, 2**31 - 1)
     request.random_seed = seed
-    result = generate_seed_data.delay(request.model_dump(mode="json"))
+    result = generate_seed_data(request.model_dump(mode="json"))
     return SeedDataResponse(task_id=result.id, status="dispatched", seed_used=seed)
 
 

@@ -14,3 +14,5 @@ class ProviderSetting(BaseDbModel):
     is_enabled: Mapped[bool]
     live_sync_mode: Mapped[LiveSyncMode | None]
     webhook_secret: Mapped[str | None]
+    client_id: Mapped[str | None]
+    client_secret: Mapped[str | None]

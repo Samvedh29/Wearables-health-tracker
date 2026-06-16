@@ -3,7 +3,7 @@ from datetime import date, datetime, timezone
 from logging import getLogger
 from uuid import UUID, uuid4
 
-from celery import shared_task
+
 from sqlalchemy import text
 
 from app.algorithms.config_algorithms import resilience_config
@@ -51,7 +51,7 @@ _MISSING_RESILIENCE_SCORES_QUERY = text("""
 """)
 
 
-@shared_task
+
 def fill_missing_resilience_scores() -> dict[str, int]:
     """Find (user, date) pairs without an OW resilience score and calculate them.
 

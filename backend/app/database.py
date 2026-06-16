@@ -29,13 +29,12 @@ from app.utils.mappings_meta import AutoRelMeta
 
 engine = create_engine(
     settings.db_uri,
-    pool_pre_ping=True,
-    pool_size=20,
-    max_overflow=30,
-    pool_timeout=30,
-    pool_recycle=3600,
+    connect_args={"check_same_thread": False},
 )
-async_engine = create_async_engine(settings.db_uri)
+async_engine = create_async_engine(
+    settings.async_db_uri,
+    connect_args={"check_same_thread": False},
+)
 
 
 def _prepare_sessionmaker(engine: Engine) -> sessionmaker:
