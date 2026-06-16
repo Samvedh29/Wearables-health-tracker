@@ -2,23 +2,21 @@
 
 from functools import lru_cache
 
-import redis
-
-from app.config import settings
-
+class DummyRedis:
+    def __init__(self):
+        self._data = {}
+    def get(self, key):
+        return self._data.get(key)
+    def set(self, key, value, *args, **kwargs):
+        self._data[key] = value
+    def setex(self, key, time, value):
+        self._data[key] = value
+    def delete(self, *keys):
+        for key in keys:
+            self._data.pop(key, None)
+    def exists(self, key):
+        return key in self._data
 
 @lru_cache()
-def get_redis_client() -> redis.Redis:
-    """
-    Get a singleton Redis client instance.
-
-    Uses LRU cache to ensure only one Redis client instance is created
-    and reused across the application.
-
-    Returns:
-        redis.Redis: Configured Redis client instance
-    """
-    return redis.from_url(
-        settings.redis_url,
-        decode_responses=True,
-    )
+def get_redis_client():
+    return DummyRedis()

@@ -1,3 +1,11 @@
+---
+title: Open Wearables Dashboard
+emoji: 🏃
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+pinned: false
+---
 
 # Open Wearables
 
@@ -222,3 +230,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for details on:
 The backend part of this project was generated from the [Python AI Kit](https://github.com/the-momentum/python-ai-kit).
 
 Built with ❤️ by [Momentum](https://themomentum.ai/)
+

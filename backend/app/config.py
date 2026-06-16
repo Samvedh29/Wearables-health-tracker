@@ -56,7 +56,7 @@ class Settings(BaseSettings):
     SENTRY_SERVER_NAME: str | None = None
 
     # AUTH SETTINGS
-    secret_key: str
+    secret_key: str = "4f8a92b1c3d4e5f60718293a4b5c6d7e8f9a0b1c2d3e4f5061728394a5b6c7d8"
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
     token_lifetime: int = 3600

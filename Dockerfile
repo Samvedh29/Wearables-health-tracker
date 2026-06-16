@@ -36,8 +36,19 @@ COPY backend/ ./
 # Install python dependencies globally within the container
 RUN uv pip install --system -r pyproject.toml
 
-# Copy the built frontend static files from Stage 1
-COPY --from=frontend-builder /app/frontend/dist /app/app/static/frontend
+# Copy Node.js binary so we can run the TanStack SSR server
+COPY --from=frontend-builder /usr/local/bin/node /usr/local/bin/node
+
+# Copy built frontend assets
+# - /app/frontend/.output/public  → where Nitro server looks for static files (../public from server/)
+# - /app/app/static/frontend      → where FastAPI serves static files from (unused now but kept as fallback)
+COPY --from=frontend-builder /app/frontend/.output/public /app/frontend/.output/public
+COPY --from=frontend-builder /app/frontend/.output/public /app/app/static/frontend
+COPY --from=frontend-builder /app/frontend/.output/server /app/frontend/.output/server
+
+# Copy startup script
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
 
 # Hugging Face Spaces exposes port 7860
 ENV API_PORT=7860
@@ -47,5 +58,5 @@ EXPOSE 7860
 ENV ENVIRONMENT=production
 ENV CORS_ALLOW_ALL=True
 
-# Command to run the application (Hugging Face expects the service on 0.0.0.0:7860)
-CMD ["uvicorn", "app.main:api", "--host", "0.0.0.0", "--port", "7860"]
+# Command to run the application (start.sh runs FastAPI and Node server)
+CMD ["/app/start.sh"]
