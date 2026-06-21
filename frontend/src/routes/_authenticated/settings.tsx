@@ -2,6 +2,8 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { PageHeader } from '@/components/ui/page-header';
+import { ProfileTab } from './settings/-profile-tab';
+import { SecurityTab } from './settings/-security-tab';
 import { ProvidersTab } from './settings/-providers-tab';
 import { PrioritiesTab } from './settings/-priorities-tab';
 
@@ -17,6 +19,16 @@ interface TabConfig {
 
 const tabs: TabConfig[] = [
   {
+    id: 'profile',
+    label: 'Profile',
+    component: ProfileTab,
+  },
+  {
+    id: 'security',
+    label: 'Security',
+    component: SecurityTab,
+  },
+  {
     id: 'providers',
     label: 'Providers & Strava Connect',
     component: ProvidersTab,
@@ -27,6 +39,7 @@ const tabs: TabConfig[] = [
     component: PrioritiesTab,
   },
 ];
+
 
 function SettingsPage() {
   const [activeTab, setActiveTab] = useState(tabs[0].id);

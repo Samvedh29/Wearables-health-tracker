@@ -1,11 +1,11 @@
-import { createFileRoute, redirect } from '@tanstack/react-router';
+import { createFileRoute, redirect, Link } from '@tanstack/react-router';
 import { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { isAuthenticated } from '@/lib/auth/session';
 import { ArrowRight, Mail, Lock, Loader2 } from 'lucide-react';
 import logotype from '@/logotype.svg';
 import { CodePreviewCard } from '@/components/login/code-preview-card';
-import { DEFAULT_REDIRECTS } from '@/lib/constants/routes';
+import { DEFAULT_REDIRECTS, ROUTES } from '@/lib/constants/routes';
 import { getCopyrightText } from '@/lib/constants/app';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -117,6 +117,16 @@ function LoginPage() {
                 )}
               </Button>
             </form>
+
+            <p className="text-center text-sm text-zinc-500">
+              Don't have an account?{' '}
+              <Link
+                to={ROUTES.register}
+                className="text-white hover:text-zinc-200 transition-colors"
+              >
+                Create one
+              </Link>
+            </p>
           </div>
 
           {/* Footer Links */}

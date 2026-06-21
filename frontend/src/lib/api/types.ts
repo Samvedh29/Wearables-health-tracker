@@ -648,6 +648,13 @@ export interface Developer {
   created_at: string;
 }
 
+export interface DeveloperUpdate {
+  email?: string;
+  first_name?: string | null;
+  last_name?: string | null;
+}
+
+
 export interface Invitation {
   id: string;
   email: string;
